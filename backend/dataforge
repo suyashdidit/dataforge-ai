@@ -7,6 +7,7 @@ root = Path(__file__).resolve().parent
 sys.path.insert(0, str(root))
 
 from app.git.service import GitChangeService
+from app.reporting.formatter import format_report_markdown
 from demo.demo import init_git_repo, write_initial_repo, modify_orders_model, REPO_DIR
 
 
@@ -20,8 +21,10 @@ def main() -> None:
     setup_parser.add_argument("path", nargs="?", default=str(REPO_DIR))
 
     analyze_parser = subparsers.add_parser("analyze-change", help="Analyze git changes for impact")
-    analyze_parser.add_argument("path", nargs="?", default=str(REPO_DIR))
+    analyze_parser.add_argument("path", nargs="?", default=".")
     analyze_parser.add_argument("--base-branch", default="main")
+    analyze_parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON output")
+    analyze_parser.add_argument("--markdown", action="store_true", help="Emit markdown formatted report")
 
     args = parser.parse_args()
 
@@ -57,25 +60,69 @@ def main() -> None:
                         }
                         for asset in impact.affected_assets
                     ],
+                    "risk_score": impact.risk_score,
                     "risk_level": impact.risk_level,
+                    "findings": [
+                        {
+                            "type": finding.type,
+                            "severity": finding.severity,
+                            "message": finding.message,
+                        }
+                        for finding in impact.findings
+                    ],
                     "reasons": impact.reasons,
                 }
                 for impact in report.impact_reports
             ],
         }
-        print(json.dumps(output, indent=2))
+
+        if args.json:
+            print(json.dumps(output, indent=2))
+            return
+
+        if args.markdown:
+            print(format_report_markdown(output))
+            return
+
+        print("# ========================")
+        print("DataForge Impact Report")
+        print()
 
         if report.changed_models:
-            print("\nSummary:")
-            print(f"Changed models: {', '.join(report.changed_models)}")
+            print("Changed:")
+            for model in report.changed_models:
+                print(f"- {model}")
+            print()
+
             for impact in report.impact_reports:
-                affected = ', '.join(asset.name for asset in impact.affected_assets) or 'none'
-                print(f"- {impact.changed_asset} impacts: {affected}")
-                print(f"  risk: {impact.risk_level}")
+                print(f"Risk: {impact.risk_level.upper()} {impact.risk_score}/100")
+                print(f"Changed: {impact.changed_asset}")
+                print()
+
+                if impact.affected_assets:
+                    print("Affected:")
+                    for asset in impact.affected_assets:
+                        print(f"- {asset.name}")
+                    print()
+                else:
+                    print("Affected: none")
+                    print()
+
+                if impact.findings:
+                    print("Findings:")
+                    for finding in impact.findings:
+                        print(f"⚠ {finding.message}")
+                    print()
+
                 if impact.reasons:
-                    print(f"  reasons: {', '.join(impact.reasons)}")
+                    print("Reasons:")
+                    for reason in impact.reasons:
+                        print(f"- {reason}")
+                    print()
+
+            print("# ========================")
         else:
-            print("\nSummary: no changed dbt models detected")
+            print("No changed dbt models detected.")
     else:
         parser.print_help()
 
