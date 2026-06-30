@@ -63,7 +63,10 @@ class ScannerService:
             documentation_missing = not any(
                 [
                     project_path.joinpath("models", f"{model_path.stem}.yml").exists(),
-                    project_path.joinpath("models", relative_model_path.with_suffix(".yml")).exists(),
+                    project_path.joinpath(
+                        "models",
+                        relative_model_path.with_suffix(".yml"),
+                    ).exists(),
                 ]
             )
 
