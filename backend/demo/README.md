@@ -1,13 +1,13 @@
 # DataForge AI Demo Repository
 
-This demo repo is built to show the current DataForge AI change impact flow.
+The demo repository shows the end-to-end experience for DataForge AI using a small sample dbt project.
 
 ## Structure
 
 - `dbt_project.yml` — dbt project config
 - `models/orders.sql` — base model
-- `models/customer_metrics.sql` — downstream model
-- `models/revenue_dashboard.sql` — downstream dashboard model
+- `models/customers.sql` — upstream model
+- `models/revenue.sql` — downstream model
 
 ## Demo steps
 
@@ -22,16 +22,26 @@ This script runs:
 1. `uv run python demo/demo.py`
 2. `./dataforge analyze-change`
 
-The demo script will:
+The demo flow:
 
-- create the sample dbt repo
-- initialize git and commit the baseline
-- switch to a `feature` branch
-- modify `models/orders.sql`
-- run the current change impact analysis
-- print the impact report
+- creates `backend/demo/sample_dbt_repo`
+- initializes Git and commits a baseline
+- switches to a feature branch
+- modifies `models/orders.sql`
+- runs change impact analysis
+- prints a structured JSON report
 
-The CLI wrapper provides:
+## Example CLI usage
 
-- `./dataforge setup-demo`
-- `./dataforge analyze-change`
+```bash
+cd backend
+dataforge analyze-change demo/sample_dbt_repo --markdown
+```
+
+## Demo artifacts
+
+- `backend/demo/demo.gif` — animated demonstration of the demo flow and output
+
+## Notes
+
+The demo harness is intentionally small and reproducible, so you can use it as a starting point for more advanced dbt and Git integration tests.

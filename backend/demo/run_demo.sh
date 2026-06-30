@@ -6,9 +6,14 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
+python_exec="./.venv/bin/python"
+if [ ! -x "$python_exec" ]; then
+  python_exec="$(command -v python3 || command -v python)"
+fi
+
 echo "Running demo script..."
-uv run python demo/demo.py
+"$python_exec" demo/demo.py
 
 echo
-echo "Running dataforge analyze-change..."
-./dataforge analyze-change
+ echo "Running dataforge analyze-change..."
+"$python_exec" ./dataforge analyze-change demo/sample_dbt_repo --markdown
