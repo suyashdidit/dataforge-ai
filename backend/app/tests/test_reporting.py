@@ -35,8 +35,8 @@ def test_report_formatter_generates_markdown() -> None:
     assert "- customer_metrics" in markdown
     assert "- revenue_dashboard" in markdown
     assert "Findings:" in markdown
-    assert "- downstream_dependency" in markdown
-    assert "- missing_tests" in markdown
+    assert "- ..." in markdown
+    assert markdown.count("- ...") == 2
 
 
 def test_report_formatter_no_changed_models() -> None:

@@ -75,7 +75,7 @@ def test_cli_analyze_change_human_output(tmp_path: Path) -> None:
 
     output = run_dataforge(tmp_path)
     assert "DataForge Impact Report" in output
-    assert "Changed models:" in output
+    assert "Changed:" in output
     assert "Risk:" in output
     assert "Affected:" in output
     assert "Findings:" in output
@@ -106,3 +106,19 @@ def test_cli_analyze_change_outputs_markdown(tmp_path: Path) -> None:
     assert "Affected:" in output
     assert "Findings:" in output
     assert "- customer_metrics" in output
+
+
+def test_cli_setup_demo_respects_custom_path(tmp_path: Path) -> None:
+    custom_path = tmp_path / "custom-demo"
+    script = Path(__file__).resolve().parents[3] / "backend" / "dataforge"
+    result = subprocess.run(
+        [sys.executable, str(script), "setup-demo", str(custom_path)],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+
+    assert "Demo repo initialized at" in result.stdout
+    assert (custom_path / ".git").exists()
+    assert (custom_path / "models" / "orders.sql").exists()

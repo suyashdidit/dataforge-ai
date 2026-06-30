@@ -46,7 +46,8 @@ def format_report_markdown(report: dict[str, Any]) -> str:
             if findings:
                 lines.append("Findings:")
                 for finding in findings:
-                    lines.append(f"- {finding.get('type')}")
+                    message = finding.get("message") or finding.get("type")
+                    lines.append(f"- {message}")
                 lines.append("")
 
             reasons = impact.get("reasons", [])

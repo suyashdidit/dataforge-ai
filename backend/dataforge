@@ -29,10 +29,10 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.command == "setup-demo":
-        demo_path = Path(args.path)
+        demo_path = Path(args.path).resolve()
         if not demo_path.exists():
-            write_initial_repo()
-        init_git_repo()
+            write_initial_repo(demo_path)
+        init_git_repo(demo_path)
         print(f"Demo repo initialized at {demo_path}")
         print("Modify a model and then run: ./dataforge analyze-change")
     elif args.command == "analyze-change":
